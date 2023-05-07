@@ -39,17 +39,40 @@ function BST(arr) {
       currentNode.right = node;
     }
   }
-  function deleting(node) {
-    let currentNode = root;
-
-    return currentNode;
+  function deleting(num) {
+    root = deleteRec(root, num);
   }
+  function deleteRec(root, num) {
+    if ((root = null)) return root;
+    if (num < root.data) {
+      root.left = deleteRec(root.left, num);
+    } else if (num > root.data) {
+      root.right = deleteRec(root.right, num);
+    } else {
+      if (root.left == null) return root.right;
+      else if (root.right == null) return root.left;
+
+      root.data = minValue(root.right);
+      root.right = deleteRec(root.right, root.data);
+    }
+    return root;
+  }
+  function minValue(root) {
+    let minv = root.data;
+    while (root.left != null) {
+      minv = root.left.data;
+      root = root.left;
+    }
+    return minv;
+  }
+
   return { buildTree, root, prettyPrint, inserting, deleting };
 }
 let tree = BST([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
 console.log(tree.prettyPrint());
 let a = BSTNode(10);
 let b = BSTNode(8.5);
-tree.insert(a);
-tree.insert(b);
+tree.inserting(a);
+tree.inserting(b);
 console.log(tree.prettyPrint());
+tree.deleting(1);

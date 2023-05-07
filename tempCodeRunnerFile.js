@@ -1,2 +1,0 @@
-Node = currentNode.right;
-            } else {

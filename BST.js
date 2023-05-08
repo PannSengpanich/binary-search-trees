@@ -26,10 +26,19 @@ function BST(arr) {
   };
   function inserting(node) {
     let currentNode = root;
-    while (currentNode.left != null && currentNode.right != null) {
+    while (currentNode.left !== null || currentNode.right !== null) {
       if (node.data < currentNode.data) {
+        if (currentNode.left === null) {
+          currentNode.left = node;
+
+          return;
+        }
         currentNode = currentNode.left;
       } else if (node.data > currentNode.data) {
+        if (currentNode.right === null) {
+          currentNode.right = node;
+          return;
+        }
         currentNode = currentNode.right;
       }
     }
@@ -38,6 +47,7 @@ function BST(arr) {
     } else if (node.data > currentNode.data) {
       currentNode.right = node;
     }
+    arr.push(node.data);
   }
   function deleting(num) {
     root = deleteRec(root, num);
@@ -76,7 +86,7 @@ function BST(arr) {
     }
     return null;
   }
-  function levelOrder(root, callback) {
+  function levelOrder(node = root, callback) {
     if (!root) return [];
     const queue = [root];
     const result = [];
@@ -84,17 +94,124 @@ function BST(arr) {
       const level = [];
       const levelSize = queue.length;
       for (let i = 0; i < levelSize; i++) {
-        const node = queue.shift();
-        level.push(node.data);
-        if (node.left) queue.push(node.left);
-        if (node.right) queue.push(node.right);
-        if (callback) callback(node); // invoke the callback function with the current node
+        const currentNode = queue.shift();
+        level.push(currentNode.data);
+        if (currentNode.left) queue.push(currentNode.left);
+        if (currentNode.right) queue.push(currentNode.right);
+        if (callback) callback(currentNode); // invoke the callback function with the current node
       }
       result.push(level);
     }
     return result.flat();
   }
+  function inOrder(node = root, callback) {
+    if (!node) return [];
 
+    const result = [];
+
+    function traverse(node) {
+      if (node.left) {
+        traverse(node.left);
+      }
+
+      if (callback) {
+        callback(node);
+      } else {
+        result.push(node.data);
+      }
+
+      if (node.right) {
+        traverse(node.right);
+      }
+    }
+
+    traverse(node);
+
+    return result;
+  }
+  function preOrder(node = root, callback) {
+    if (!node) return;
+    const result = [];
+    function traverse(node) {
+      if (callback) {
+        callback(node);
+      } else {
+        result.push(node.data);
+      }
+      if (node.left) {
+        traverse(node.left);
+      }
+      if (node.right) {
+        traverse(node.right);
+      }
+    }
+    traverse(node);
+    return result;
+  }
+  function postOrder(node = root, callback) {
+    if (!node) return;
+    const result = [];
+    function traverse(node) {
+      if (node.left) {
+        traverse(node.left);
+      }
+
+      if (node.right) {
+        traverse(node.right);
+      }
+
+      if (callback) {
+        callback(node);
+      } else {
+        result.push(node.data);
+      }
+    }
+    traverse(node);
+    return result;
+  }
+  function height(node = root) {
+    if (node == null) return -1;
+    let leftHeight = height(node.left);
+    let rightHeight = height(node.right);
+    return Math.max(leftHeight, rightHeight) + 1;
+  }
+  function depth(data) {
+    let currentNode = root;
+    let depth = 0;
+
+    while (currentNode !== null) {
+      if (currentNode.data === data) {
+        return depth;
+      } else if (currentNode.data > data) {
+        currentNode = currentNode.left;
+        depth++;
+      } else {
+        currentNode = currentNode.right;
+        depth++;
+      }
+    }
+
+    return -1; // if the node is not found
+  }
+  function isBalanced() {
+    function getHeight(node) {
+      if (!node) return 0;
+      const leftHeight = getHeight(node.left);
+      if (leftHeight === -1) return -1;
+      const rightHeight = getHeight(node.right);
+      if (rightHeight === -1) return -1;
+      if (Math.abs(leftHeight - rightHeight) > 1) return -1;
+      return Math.max(leftHeight, rightHeight) + 1;
+    }
+
+    return getHeight(root) !== -1;
+  }
+  function rebalance() {
+    let oldroot = root;
+    let newArr = inOrder();
+    let newRoot = buildTree(newArr);
+    root = newRoot;
+  }
   return {
     root,
     buildTree,
@@ -103,17 +220,30 @@ function BST(arr) {
     deleting,
     find,
     levelOrder,
+    inOrder,
+    preOrder,
+    postOrder,
+    height,
+    depth,
+    isBalanced,
+    rebalance,
   };
 }
 let tree = BST([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
+console.log(tree.isBalanced());
+tree.inserting(BSTNode(10000));
+tree.inserting(BSTNode(20000));
+tree.inserting(BSTNode(30000));
 console.log(tree.prettyPrint());
-console.log("-------------------------------------------------------");
-let a = BSTNode(10);
-let b = BSTNode(8.5);
-tree.inserting(a);
-tree.inserting(b);
+console.log(tree.levelOrder());
+console.log(tree.inOrder());
+console.log(tree.preOrder());
+console.log(tree.postOrder());
+console.log(tree.isBalanced());
+tree.rebalance();
 console.log(tree.prettyPrint());
-tree.deleting(8);
-console.log(tree.prettyPrint());
-console.log(tree.find(4));
-console.log(tree.levelOrder(tree.root));
+console.log(tree.isBalanced());
+console.log(tree.inOrder());
+console.log(tree.preOrder());
+console.log(tree.postOrder());
+console.log(tree.isBalanced());
